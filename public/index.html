@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蒸汽喷射泵引射性能模拟</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>蒸汽喷射泵引射性能模拟</h1>
+            <p class="subtitle">Steam Ejector Performance Simulation</p>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="controls">
+                    <h2>参数调节</h2>
+                    <div class="control-group">
+                        <label for="pressure">工作蒸汽压力 (MPa)</label>
+                        <input type="range" id="pressure" min="0.2" max="2.0" step="0.05" value="0.8">
+                        <span class="value" id="pressureValue">0.80 MPa</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="entrainment">引射比</label>
+                        <input type="range" id="entrainment" min="0.1" max="0.8" step="0.01" value="0.35">
+                        <span class="value" id="entrainmentValue">0.35</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="suctionPressure">吸入压力 (kPa)</label>
+                        <input type="range" id="suctionPressure" min="1" max="50" step="1" value="10">
+                        <span class="value" id="suctionPressureValue">10 kPa</span>
+                    </div>
+                    <div class="buttons">
+                        <button id="saveBtn" class="btn btn-primary">保存快照</button>
+                        <button id="historyBtn" class="btn btn-secondary">历史记录</button>
+                    </div>
+                </div>
+
+                <div class="results">
+                    <h2>计算结果</h2>
+                    <div class="result-item">
+                        <span class="label">引射系数:</span>
+                        <span class="value" id="entrainmentCoeff">0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">出口压力:</span>
+                        <span class="value" id="outletPressure">0.00 kPa</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">马赫数:</span>
+                        <span class="value" id="machNumber">0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">临界压力比:</span>
+                        <span class="value" id="criticalRatio">0.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">混合室压力:</span>
+                        <span class="value" id="mixingPressure">0.00 kPa</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">压缩比:</span>
+                        <span class="value" id="compressionRatio">0.00</span>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <h3>图例</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="legend-color steam"></span>
+                            <span>工作蒸汽</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color suction"></span>
+                            <span>引射流体</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color mixture"></span>
+                            <span>混合流体</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color shock"></span>
+                            <span>激波</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas"></canvas>
+                    <div class="canvas-overlay">
+                        <div class="velocity-indicator">
+                            <span>速度场</span>
+                            <div class="velocity-scale">
+                                <span>低</span>
+                                <div class="scale-bar"></div>
+                                <span>高</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-item">
+                        <h4>喷嘴出口速度</h4>
+                        <span id="nozzleVelocity">0 m/s</span>
+                    </div>
+                    <div class="info-item">
+                        <h4>混合室速度</h4>
+                        <span id="mixingVelocity">0 m/s</span>
+                    </div>
+                    <div class="info-item">
+                        <h4>激波位置</h4>
+                        <span id="shockPosition">--</span>
+                    </div>
+                    <div class="info-item">
+                        <h4>激波强度</h4>
+                        <span id="shockIntensity">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>历史记录</h2>
+                    <button class="close-btn" id="closeHistory">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="parameters">操作参数</button>
+                        <button class="tab-btn" data-tab="snapshots">性能快照</button>
+                    </div>
+                    <div class="tab-content" id="tab-parameters">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>工作压力 (MPa)</th>
+                                        <th>引射比</th>
+                                        <th>吸入压力</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="parametersTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-content hidden" id="tab-snapshots">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>工作压力</th>
+                                        <th>引射系数</th>
+                                        <th>出口压力</th>
+                                        <th>激波信息</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="snapshotsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ejector_model.js"></script>
+    <script src="js/simulation.js"></script>
+</body>
+</html>

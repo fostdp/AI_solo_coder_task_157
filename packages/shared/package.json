@@ -1,0 +1,12 @@
+{
+  "name": "@steam-ejector/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "build": "echo 'Shared package built'",
+    "test": "node test/model.test.js"
+  }
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蒸汽喷射泵引射性能模拟 - Turborepo Edition</title>
+  <script type="module" crossorigin src="/assets/main-D0MqgdtH.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-djlSoF8h.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>蒸汽喷射泵引射性能模拟</h1>
+            <div class="badges">
+                <span class="badge badge-turbo">Turborepo</span>
+                <span class="badge badge-wasm">WebAssembly</span>
+                <span class="badge badge-stream">Streaming</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="control-panel">
+                <div class="control-group">
+                    <label>工作蒸汽压力: <span id="pressureValue">0.8</span> MPa</label>
+                    <input type="range" id="pressureSlider" min="0.3" max="1.0" step="0.05" value="0.8">
+                </div>
+                
+                <div class="control-group">
+                    <label>引射比: <span id="omegaValue">0.5</span></label>
+                    <input type="range" id="omegaSlider" min="0.1" max="1.0" step="0.05" value="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label>吸入压力: <span id="suctionValue">10</span> kPa</label>
+                    <input type="range" id="suctionSlider" min="5" max="50" step="1" value="10">
+                </div>
+
+                <div class="button-group">
+                    <button id="simulateBtn" class="btn btn-primary">实时模拟</button>
+                    <button id="streamBtn" class="btn btn-secondary">批量扫描 (流式)</button>
+                    <button id="saveBtn" class="btn btn-success">保存快照</button>
+                    <button id="loadBtn" class="btn btn-info">加载历史</button>
+                </div>
+            </div>
+
+            <div class="visualization-panel">
+                <div class="canvas-container">
+                    <canvas id="simulationCanvas" width="900" height="400"></canvas>
+                </div>
+
+                <div class="results-panel">
+                    <div class="result-card">
+                        <div class="result-label">引射系数</div>
+                        <div class="result-value" id="entrainmentValue">0.000</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">出口压力</div>
+                        <div class="result-value" id="outletPressureValue">0.0 kPa</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">激波位置</div>
+                        <div class="result-value" id="shockPositionValue">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">壅塞状态</div>
+                        <div class="result-value" id="chokedValue">未壅塞</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="streaming-panel" id="streamingPanel" style="display: none;">
+                <div class="streaming-header">
+                    <h3>流式批量扫描</h3>
+                    <div class="streaming-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+                <div class="streaming-content">
+                    <div class="chart-container">
+                        <canvas id="chartCanvas" width="800" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-panel" id="historyPanel" style="display: none;">
+                <h3>历史快照</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>工作压力</th>
+                            <th>引射比</th>
+                            <th>引射系数</th>
+                            <th>出口压力</th>
+                            <th>壅塞</th>
+                            <th>激波位置</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="status-indicators">
+                <span class="status-item">
+                    <span class="status-dot" id="wasmStatus"></span>
+                    WASM: <span id="wasmStatusText">加载中...</span>
+                </span>
+                <span class="status-item">
+                    <span class="status-dot" id="apiStatus"></span>
+                    API: <span id="apiStatusText">检测中...</span>
+                </span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
